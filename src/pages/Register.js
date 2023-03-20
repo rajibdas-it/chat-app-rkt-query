@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../assets/images/lws-logo-light.svg";
+import Error from "../components/ui/Error";
+import { useRegisterMutation } from "../features/auth/authApi";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -8,10 +10,29 @@ export default function Register() {
   const [password, setPasswrod] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const [register, { data, isLoading, isError, error }] = useRegisterMutation();
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrorMsg("");
+    if (password !== confirmPassword) {
+      setErrorMsg("Password Doesn't Match.");
+    } else {
+      register({ name, email, password });
+    }
   };
+
+  useEffect(() => {
+    if (error?.data) {
+      setErrorMsg(error?.data);
+    }
+    if (data?.accessToken && data?.user) {
+      navigate("/inbox");
+    }
+  }, [data, error, navigate]);
   return (
     <div className="grid place-items-center h-screen bg-[#F9FAFB]">
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -95,7 +116,7 @@ export default function Register() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="confirmPassword"
+                  type="password"
                   autoComplete="current-confirmPassword"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
@@ -109,6 +130,7 @@ export default function Register() {
                 <input
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
+                  required
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
@@ -125,6 +147,7 @@ export default function Register() {
 
             <div>
               <button
+                disabled={!agreed}
                 type="submit"
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500"
               >
@@ -132,6 +155,7 @@ export default function Register() {
                 Sign up
               </button>
             </div>
+            {errorMsg !== "" && <Error message={errorMsg} />}
           </form>
         </div>
       </div>
