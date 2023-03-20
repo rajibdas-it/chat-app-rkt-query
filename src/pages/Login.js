@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logoImage from "../assets/images/lws-logo-light.svg";
 import Error from "../components/ui/Error";
 import { useLoginMutation } from "../features/auth/authApi";
@@ -10,6 +10,9 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  navigate(from, { replace: true });
 
   const [login, { data, isLoading, isError, error }] = useLoginMutation("");
   const handleLogin = (e) => {
