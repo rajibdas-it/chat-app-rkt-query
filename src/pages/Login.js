@@ -10,9 +10,6 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
-  navigate(from, { replace: true });
 
   const [login, { data, isLoading, isError, error }] = useLoginMutation("");
   const handleLogin = (e) => {
